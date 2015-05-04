@@ -45,7 +45,7 @@ public class TXTData implements Data{
     
     
     public TXTData(String inputFile, String del){
-        this.inputFile = inputFile;
+        
         colNamesType = new TreeMap<Integer,String>();
         colNamesPosition = new HashMap<Integer,String>();
         chVar = new CheckVariables();
@@ -58,13 +58,8 @@ public class TXTData implements Data{
         String []colNames = null;
         boolean FLAG = true;
 
-        //assing delimeter
-        if (del != null){
-            this.delimeter = del;
-        }
-        else{
-            this.delimeter = " ";
-        }
+        this.inputFile = inputFile;
+        this.delimeter = del;
         
         try {
             fstream = new FileInputStream(inputFile);

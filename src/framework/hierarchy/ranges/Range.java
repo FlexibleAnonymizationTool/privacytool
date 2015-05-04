@@ -61,12 +61,27 @@ public class Range {
      @Override 
      public String toString(){
          StringBuilder sb = new StringBuilder();
-         sb.append(this.lowerBound);
+         if(isInt(this.lowerBound)){
+             sb.append(this.lowerBound.intValue());
+         }
+         else{
+            sb.append(this.lowerBound);
+         }
          sb.append(" - ");
-         sb.append(this.upperBound);
+         
+         if(isInt(this.lowerBound)){
+            sb.append(this.upperBound.intValue());
+         }
+         else{
+             sb.append(this.upperBound);
+         }
          return sb.toString();
      }
 
+    private boolean isInt(Double d){
+        return ((d == Math.floor(d) && !Double.isInfinite(d)));
+    }
+    
     public void setLowerBound(Double lowerBound) {
         this.lowerBound = lowerBound;
     }

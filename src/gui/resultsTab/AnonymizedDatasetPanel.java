@@ -142,7 +142,7 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
  
         //compute data of first column with line numbers
         columnName = "line#";
-        System.out.println(dataSet.length);
+//        System.out.println(dataSet.length);
         columnData = new Object[dataSet.length];
         for(int i=0; i<dataSet.length; i++){
             columnData[i] = i;
@@ -175,7 +175,10 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
                     if(anonymizeColumn && level > 0){
                         columnData[line] = anonymizeValue(columnData[line], hierarchy, level);
                     }
-                    columnData[line] = ((Double)columnData[line]).intValue();
+                    
+                    if(anonymizeColumn && hierarchy.getHierarchyType().equals("distinct")){
+                        columnData[line] = ((Double)columnData[line]).intValue();
+                    }             
                 }
             }
             else if(colNamesType.get(column).contains("double")){

@@ -35,9 +35,9 @@ import privacytool.framework.hierarchy.ranges.Range;
  */
 public class Buffer {
     Data data = null;
-    Map<Integer, Hierarchy> hierarchies = null;
-    
+    Map<Integer, Hierarchy> hierarchies = null;    
     Map<GeneralizedRow, Integer> frequencies = new HashMap<>();
+    
     
     public Buffer(Data _data,  Map<Integer, Hierarchy> _hierarchies){
         hierarchies = _hierarchies;

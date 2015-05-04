@@ -257,7 +257,11 @@ public class MainGUI extends javax.swing.JFrame {
             System.out.println("Open command cancelled by user");
         }
         if(file != null){
-            inputDataPanel1.initTable(file);
+            try {
+                inputDataPanel1.initTable(file,null);
+            } catch (IOException ex) {
+                Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             hierarchyPanel1.setDataset(inputDataPanel1.getData());
             algorithmsPanel1.setDataset(inputDataPanel1.getData());
         }

@@ -24,7 +24,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +44,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import privacytool.framework.data.Data;
+import privacytool.framework.data.SetData;
 import privacytool.framework.data.TXTData;
 import privacytool.framework.dictionary.Dictionary;
 import privacytool.framework.hierarchy.Hierarchy;
@@ -62,7 +68,7 @@ public class InputDataPanel extends javax.swing.JPanel {
         jScrollPane2.setVisible(false);
     }
     
-    public void initTable(File file){
+    public void initTable(File file, String del) throws IOException{
         jScrollPane2.setVisible(true);
         String inputFile = null;
         double [][]dataSet = null;
@@ -70,7 +76,20 @@ public class InputDataPanel extends javax.swing.JPanel {
         Map <Integer,String>colNamesPosition = null;
         Map <Integer,Dictionary> dictionary = null;
         Dictionary tempDict = null;
+        FileInputStream fstream = null;
+        DataInputStream in = null;
+        BufferedReader br = null;
+        String strLine = null;
+        String delimeter = null;
         
+        
+        
+        if ( del == null ){
+            delimeter = ",";
+        }
+        else{
+            delimeter = del;
+        }
         
         DefaultTableModel tableModel = new javax.swing.table.DefaultTableModel(){
 
@@ -85,8 +104,23 @@ public class InputDataPanel extends javax.swing.JPanel {
         jScrollPane2.setViewportView(jTable2);
 
         inputFile = file.getAbsolutePath();
-        data = new TXTData(inputFile,",");
         
+        fstream = new FileInputStream(inputFile);
+        in = new DataInputStream(fstream);
+        br = new BufferedReader(new InputStreamReader(in));
+        
+        while ((strLine = br.readLine()) != null){
+            if ( strLine.contains(delimeter)){
+                data = new TXTData(inputFile,delimeter);
+            }
+            else{
+                data = new SetData(inputFile,delimeter);
+            }
+            break;
+        }
+        
+        br.close();
+
         data.readDataset();
         
         dataSet = data.getData();
