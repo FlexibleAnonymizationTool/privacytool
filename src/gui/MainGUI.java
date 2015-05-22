@@ -1,22 +1,22 @@
-/* 
- * Copyright (C) 2015 "IMIS-Athena R.C.",
- * Institute for the Management of Information Systems, part of the "Athena" 
- * Research and Innovation Centre in Information, Communication and Knowledge Technologies.
- * [http://www.imis.athena-innovation.gr/]
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*
+* Copyright (C) 2015 "IMIS-Athena R.C.",
+* Institute for the Management of Information Systems, part of the "Athena"
+* Research and Innovation Centre in Information, Communication and Knowledge Technologies.
+* [http://www.imis.athena-innovation.gr/]
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package privacytool.gui;
 
 import java.io.File;
@@ -38,7 +38,7 @@ import privacytool.gui.anonymizationrules.ImportRulesPanel;
  * @author serafeim
  */
 public class MainGUI extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form MainGUI
      */
@@ -48,7 +48,7 @@ public class MainGUI extends javax.swing.JFrame {
         this.algorithmsPanel1.setResultsPanel(this.solutionsPanel1);
         this.solutionsPanel1.setAnonymizedDatasetPanel(this.anonymizedDatasetPanel2);
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -113,7 +113,7 @@ public class MainGUI extends javax.swing.JFrame {
                 .addGap(15, 15, 15))
         );
 
-        Tabs.addTab("Define Transformation", TransforamtionTab);
+        Tabs.addTab("Transformation", TransforamtionTab);
 
         javax.swing.GroupLayout SolutionsTabLayout = new javax.swing.GroupLayout(SolutionsTab);
         SolutionsTab.setLayout(SolutionsTabLayout);
@@ -248,7 +248,7 @@ public class MainGUI extends javax.swing.JFrame {
         final JFileChooser fc = new JFileChooser();
         int returnVal = fc.showOpenDialog(this);
         File file = null;
-
+        
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             file = fc.getSelectedFile();
             //TODO: OPEN FILE HERE
@@ -269,13 +269,13 @@ public class MainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_ImportDataActionPerformed
 
     private void AutogenerateHierarchyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutogenerateHierarchyActionPerformed
-
+        
         HierarchyAutogeneratePanel autogeneratePanel = new HierarchyAutogeneratePanel(inputDataPanel1.getData());
-
+        
         int result = JOptionPane.showConfirmDialog(null, autogeneratePanel,
-            "Autogenerate Hierarchy", JOptionPane.OK_CANCEL_OPTION,
-            JOptionPane.PLAIN_MESSAGE);
-
+                "Autogenerate Hierarchy", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+        
         if (result == JOptionPane.OK_OPTION) {
             //System.out.println("mainGUI - hierarchyType: " + autogeneratePanel.hierarchyType);
             if(autogeneratePanel.hierarchyType.equals("distinct")){
@@ -286,69 +286,69 @@ public class MainGUI extends javax.swing.JFrame {
                 int fanout = 0;
                 int plusMinusFanout = 0;
                 //boolean exactbutton = false;
-
+                
                 for (HierarchyAutogeneratePanel.DistinctField fieldTitle : HierarchyAutogeneratePanel.DistinctField.values()) {
                     //System.out.println(fieldTitle.getTitle() + " " + autogeneratePanel.getFieldText(fieldTitle));
-
+                    
                     switch (fieldTitle.getTitle()) {
                         case "Name":
-                        if(autogeneratePanel.getFieldText(fieldTitle).isEmpty()){
-                            ErrorWindow.showErrorWindow("Please give an Hierarchy Name and try again");
-                            return;
-                        }
-                        name = autogeneratePanel.getFieldText(fieldTitle).trim();
-                        break;
+                            if(autogeneratePanel.getFieldText(fieldTitle).isEmpty()){
+                                ErrorWindow.showErrorWindow("Please give an Hierarchy Name and try again");
+                                return;
+                            }
+                            name = autogeneratePanel.getFieldText(fieldTitle).trim();
+                            break;
                         case "Nodes Type":
-                        nodesType = autogeneratePanel.getFieldText(fieldTitle);
-                        break;
+                            nodesType = autogeneratePanel.getFieldText(fieldTitle);
+                            break;
                         case "on Attribute":
-                        if(autogeneratePanel.getFieldText(fieldTitle) == null){
-                            ErrorWindow.showErrorWindow("Please load dataset and try again");
-                            return;
-                        }
-                        attribute = autogeneratePanel.getFieldText(fieldTitle);
-                        break;
+                            if(autogeneratePanel.getFieldText(fieldTitle) == null){
+                                ErrorWindow.showErrorWindow("Please load dataset and try again");
+                                return;
+                            }
+                            attribute = autogeneratePanel.getFieldText(fieldTitle);
+                            break;
                         case "Sorting":
-                        sorting = autogeneratePanel.getFieldText(fieldTitle);
-                        break;
+                            sorting = autogeneratePanel.getFieldText(fieldTitle);
+                            break;
                         case "Fanout":
-                        try {
-                            fanout = Integer.parseInt(autogeneratePanel.getFieldText(fieldTitle).trim());
-                        }catch(java.lang.NumberFormatException e){
-                            ErrorWindow.showErrorWindow("Please give a valid fanout number");
-                            return;
-                        }
-                        if(fanout <= 1){
-                            ErrorWindow.showErrorWindow("Fanout must be a positive number > 1");
-                            return;
-                        }
-                        break;
-                        /*
-                        case "Exact Button":
-                        if(autogeneratePanel.getFieldText(fieldTitle).equals("selected")){
+                            try {
+                                fanout = Integer.parseInt(autogeneratePanel.getFieldText(fieldTitle).trim());
+                            }catch(java.lang.NumberFormatException e){
+                                ErrorWindow.showErrorWindow("Please give a valid fanout number");
+                                return;
+                            }
+                            if(fanout <= 1){
+                                ErrorWindow.showErrorWindow("Fanout must be a positive number > 1");
+                                return;
+                            }
+                            break;
+                            /*
+                            case "Exact Button":
+                            if(autogeneratePanel.getFieldText(fieldTitle).equals("selected")){
                             exactbutton = true;
-                        }
-                        break;
-                        */
+                            }
+                            break;
+                            */
                         case "+/-":
-                        try {
-                            plusMinusFanout = Integer.parseInt(autogeneratePanel.getFieldText(fieldTitle).trim());
-                        }catch(java.lang.NumberFormatException e){
-                            ErrorWindow.showErrorWindow("Please give a valid fanout +/- number");
-                            return;
-                        }
-
-                        //                            System.out.println(plusMinusFanout + " " + fanout/2);
-                        if(plusMinusFanout < 0 || (plusMinusFanout >= fanout/2)){
-                            ErrorWindow.showErrorWindow("Fanout +/- must be a positive number < fanout/2");
-                            return;
-                        }
-                        break;
+                            try {
+                                plusMinusFanout = Integer.parseInt(autogeneratePanel.getFieldText(fieldTitle).trim());
+                            }catch(java.lang.NumberFormatException e){
+                                ErrorWindow.showErrorWindow("Please give a valid fanout +/- number");
+                                return;
+                            }
+                            
+                            //                            System.out.println(plusMinusFanout + " " + fanout/2);
+                            if(plusMinusFanout < 0 || (plusMinusFanout >= fanout/2)){
+                                ErrorWindow.showErrorWindow("Fanout +/- must be a positive number < fanout/2");
+                                return;
+                            }
+                            break;
                     }
                 }
                 //System.out.println();
                 //                System.out.println("name: " + name +"\n" + "nodesType: " + nodesType + "\n" + "attribute: " + attribute + "\n" +
-                    //                        "sorting: " + sorting + "\n" + "fanout: " + fanout + "\n" + "plusMinusFanout: " + plusMinusFanout);
+                //                        "sorting: " + sorting + "\n" + "fanout: " + fanout + "\n" + "plusMinusFanout: " + plusMinusFanout);
                 //                System.out.println();
                 hierarchyPanel1.autogenerateDistinctHierarchy(name, nodesType, attribute, sorting, fanout, plusMinusFanout);
             } else if (autogeneratePanel.hierarchyType.equals("ranges")){
@@ -360,94 +360,94 @@ public class MainGUI extends javax.swing.JFrame {
                 int fanout = 0;
                 int plusMinusFanout = 0;
                 //boolean exactbutton = false;
-
+                
                 for (HierarchyAutogeneratePanel.RangeField fieldTitle : HierarchyAutogeneratePanel.RangeField.values()) {
                     //System.out.println(fieldTitle.getTitle() + " " + autogeneratePanel.getFieldText(fieldTitle));
                     switch (fieldTitle.getTitle()) {
                         case "Name":
-                        if(autogeneratePanel.getFieldText(fieldTitle).isEmpty()){
-                            ErrorWindow.showErrorWindow("Please give an Hierarchy Name and try again");
-                            return;
-                        }
-                        name = autogeneratePanel.getFieldText(fieldTitle);
-                        break;
+                            if(autogeneratePanel.getFieldText(fieldTitle).isEmpty()){
+                                ErrorWindow.showErrorWindow("Please give an Hierarchy Name and try again");
+                                return;
+                            }
+                            name = autogeneratePanel.getFieldText(fieldTitle);
+                            break;
                         case "Nodes Type":
-                        nodesType = autogeneratePanel.getFieldText(fieldTitle);
-                        break;
+                            nodesType = autogeneratePanel.getFieldText(fieldTitle);
+                            break;
                         case "Start-End":
-                        if(autogeneratePanel.getFieldText(fieldTitle).isEmpty() || !autogeneratePanel.getFieldText(fieldTitle).contains("-")){
-                            ErrorWindow.showErrorWindow("Please give valid start - end");
-                            return;
-                        }
-                        String domain = autogeneratePanel.getFieldText(fieldTitle);
-                        String[] parts = domain.split("-");
-
-                        try {
-                            start = (Double)Double.parseDouble(parts[0].trim());
-                            end = (Double)Double.parseDouble(parts[1].trim());
-                            if(nodesType.equals("int") && (start % 1 != 0 || end % 1 != 0)){
-                                ErrorWindow.showErrorWindow("Start-end are not integer numbers, please try again");
+                            if(autogeneratePanel.getFieldText(fieldTitle).isEmpty() || !autogeneratePanel.getFieldText(fieldTitle).contains("-")){
+                                ErrorWindow.showErrorWindow("Please give valid start - end");
                                 return;
                             }
-                            if(end <= start){
-                                ErrorWindow.showErrorWindow("Wrong start, end values! End value should be greater than start");
+                            String domain = autogeneratePanel.getFieldText(fieldTitle);
+                            String[] parts = domain.split("-");
+                            
+                            try {
+                                start = (Double)Double.parseDouble(parts[0].trim());
+                                end = (Double)Double.parseDouble(parts[1].trim());
+                                if(nodesType.equals("int") && (start % 1 != 0 || end % 1 != 0)){
+                                    ErrorWindow.showErrorWindow("Start-end are not integer numbers, please try again");
+                                    return;
+                                }
+                                if(end <= start){
+                                    ErrorWindow.showErrorWindow("Wrong start, end values! End value should be greater than start");
+                                    return;
+                                }
+                            }catch(java.lang.NumberFormatException e){
+                                ErrorWindow.showErrorWindow("Start-end are not valid integer numbers, please try again");
                                 return;
                             }
-                        }catch(java.lang.NumberFormatException e){
-                            ErrorWindow.showErrorWindow("Start-end are not valid integer numbers, please try again");
-                            return;
-                        }
-                        break;
-
+                            break;
+                            
                         case "Step":
-                        try {
-                            step = Double.parseDouble(autogeneratePanel.getFieldText(fieldTitle));
-                            if(nodesType.equals("int") && (step % 1 != 0)){
-                                ErrorWindow.showErrorWindow("Step not an integer number");
+                            try {
+                                step = Double.parseDouble(autogeneratePanel.getFieldText(fieldTitle));
+                                if(nodesType.equals("int") && (step % 1 != 0)){
+                                    ErrorWindow.showErrorWindow("Step not an integer number");
+                                    return;
+                                }
+                            }catch(java.lang.NumberFormatException e){
+                                ErrorWindow.showErrorWindow("Please give a valid step number");
                                 return;
                             }
-                        }catch(java.lang.NumberFormatException e){
-                            ErrorWindow.showErrorWindow("Please give a valid step number");
-                            return;
-                        }
-                        if(step <= 0){
-                            ErrorWindow.showErrorWindow("Step must be a positive number");
-                            return;
-                        }
-
-                        break;
+                            if(step <= 0){
+                                ErrorWindow.showErrorWindow("Step must be a positive number");
+                                return;
+                            }
+                            
+                            break;
                         case "Fanout":
-                        try {
-                            fanout = Integer.parseInt(autogeneratePanel.getFieldText(fieldTitle));
-                        }catch(java.lang.NumberFormatException e){
-                            ErrorWindow.showErrorWindow("Please give a valid fanout number");
-                            return;
-                        }
-                        if(fanout <= 1){
-                            ErrorWindow.showErrorWindow("Fanout must be a positive number > 1");
-                            return;
-                        }
-                        break;
+                            try {
+                                fanout = Integer.parseInt(autogeneratePanel.getFieldText(fieldTitle));
+                            }catch(java.lang.NumberFormatException e){
+                                ErrorWindow.showErrorWindow("Please give a valid fanout number");
+                                return;
+                            }
+                            if(fanout <= 1){
+                                ErrorWindow.showErrorWindow("Fanout must be a positive number > 1");
+                                return;
+                            }
+                            break;
                         case "+/-":
-                        try {
-                            plusMinusFanout = Integer.parseInt(autogeneratePanel.getFieldText(fieldTitle).trim());
-                        }catch(java.lang.NumberFormatException e){
-                            ErrorWindow.showErrorWindow("Please give a valid fanout +/- number");
-                            return;
-                        }
-
-                        //                            System.out.println(plusMinusFanout + " " + fanout/2);
-                        if(plusMinusFanout < 0 || (plusMinusFanout >= fanout/2)){
-                            ErrorWindow.showErrorWindow("Fanout +/- must be a positive number < fanout/2");
-                            return;
-                        }
-                        break;
+                            try {
+                                plusMinusFanout = Integer.parseInt(autogeneratePanel.getFieldText(fieldTitle).trim());
+                            }catch(java.lang.NumberFormatException e){
+                                ErrorWindow.showErrorWindow("Please give a valid fanout +/- number");
+                                return;
+                            }
+                            
+                            //                            System.out.println(plusMinusFanout + " " + fanout/2);
+                            if(plusMinusFanout < 0 || (plusMinusFanout >= fanout/2)){
+                                ErrorWindow.showErrorWindow("Fanout +/- must be a positive number < fanout/2");
+                                return;
+                            }
+                            break;
                     }
-
+                    
                 }
-
+                
                 //                System.out.println("name: " + name +"\n" + "nodesType: " + nodesType + "\n" + "start: " + start + "\n" +
-                    //                        "end: " + end + "\n" + "step: " + step + "\n" + "fanout: " + fanout + "\n" + "plusMinusFanout: " + plusMinusFanout);
+                //                        "end: " + end + "\n" + "step: " + step + "\n" + "fanout: " + fanout + "\n" + "plusMinusFanout: " + plusMinusFanout);
                 hierarchyPanel1.autogenerateRangeHierarchy(name, nodesType, start, end, step, fanout, plusMinusFanout);
             }
         }
@@ -459,7 +459,7 @@ public class MainGUI extends javax.swing.JFrame {
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int returnVal = fc.showSaveDialog(this);
         File dir = null;
-
+        
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             dir = fc.getSelectedFile();
             //TODO: OPEN FILE HERE
@@ -467,7 +467,7 @@ public class MainGUI extends javax.swing.JFrame {
         } else {
             System.out.println("Open command cancelled by user");
         }
-
+        
         if(dir != null){
             hierarchyPanel1.export(dir.toString());
         }
@@ -479,7 +479,7 @@ public class MainGUI extends javax.swing.JFrame {
         final JFileChooser fc = new JFileChooser();
         int returnVal = fc.showOpenDialog(this);
         File file = null;
-
+        
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             file = fc.getSelectedFile();
             //TODO: OPEN FILE HERE
@@ -506,29 +506,29 @@ public class MainGUI extends javax.swing.JFrame {
             ErrorWindow.showErrorWindow("Please first select quasi-identifiers in dataset columns");
             return;
         }
-
+        
         QuasiIdentifiersPanel quasiIdentifiersPanel = new QuasiIdentifiersPanel(inputDataPanel1.getData(), inputDataPanel1.getQuasiIdentifiers(), hierarchyPanel1.getHierarchies());
-
+        
         int result = JOptionPane.showConfirmDialog(null, quasiIdentifiersPanel,
-            "Quasi-Identifiers", JOptionPane.OK_CANCEL_OPTION,
-            JOptionPane.PLAIN_MESSAGE);
+                "Quasi-Identifiers", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             Map<Integer, Hierarchy> quasiToHierarchy = inputDataPanel1.getQuasiIdentifiers();
             Map<Integer, JComboBox> quasiToCombo = quasiIdentifiersPanel.getQuasiToComboBox();
             Map<String, Hierarchy> hierarchies = hierarchyPanel1.getHierarchies();
-
+            
             if(quasiToHierarchy.size() != quasiToCombo.size()){
                 ErrorWindow.showErrorWindow("Please select hierarchy for every quasi-identifier.");
                 return;
             }
-
+            
             for(Integer i : quasiToCombo.keySet()){
                 String hierarchyName = quasiToCombo.get(i).getSelectedItem().toString();
                 Hierarchy h = hierarchies.get(hierarchyName);
                 quasiToHierarchy.put(i, h);
             }
         }
-
+        
         algorithmsPanel1.setQuasiIdentifiers(inputDataPanel1.getQuasiIdentifiers());
     }//GEN-LAST:event_SetQuasi_idsActionPerformed
 
@@ -543,13 +543,13 @@ public class MainGUI extends javax.swing.JFrame {
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showSaveDialog(this);
         File file = null;
-
+        
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             file = fc.getSelectedFile();
         } else {
             System.out.println("Open command cancelled by user");
         }
-
+        
         if(file != null){
             this.anonymizedDatasetPanel2.exportAnonymizationRules(file.getAbsolutePath());
         }
@@ -560,12 +560,12 @@ public class MainGUI extends javax.swing.JFrame {
             ErrorWindow.showErrorWindow("Load dataset first and then import rules");
             return;
         }
-
+        
         System.out.println("Importing Anonymization Rules...");
         final JFileChooser fc = new JFileChooser();
         int returnVal = fc.showOpenDialog(this);
         File file = null;
-
+        
         //select file
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             file = fc.getSelectedFile();
@@ -586,13 +586,13 @@ public class MainGUI extends javax.swing.JFrame {
                 
                 //show panel for rules to be applied
                 int result = JOptionPane.showConfirmDialog(null, importRulesPanel,
-                    "Import anonymization rules", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                        "Import anonymization rules", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (result == JOptionPane.OK_OPTION) {
                     this.anonymizedDatasetPanel2.setDataset(this.inputDataPanel1.getData());
                     this.anonymizedDatasetPanel2.renderInitialTable();
                     this.anonymizedDatasetPanel2.anonymizeWithImportedRules(anonyRules.getAnonymizedRules());
                 }
-
+                
             } catch (IOException ex) {
                 Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -611,18 +611,18 @@ public class MainGUI extends javax.swing.JFrame {
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showSaveDialog(this);
         File file = null;
-
+        
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             file = fc.getSelectedFile();
         } else {
             System.out.println("Open command cancelled by user");
         }
-
+        
         if(file != null){
             this.anonymizedDatasetPanel2.exportAnonymizedDataset(file.getAbsolutePath());
         }
     }//GEN-LAST:event_jMenuItem1ActionPerformed
-
+    
     
     /**
      * @param args the command line arguments
@@ -631,8 +631,8 @@ public class MainGUI extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+        * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+        */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -650,7 +650,7 @@ public class MainGUI extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -658,7 +658,7 @@ public class MainGUI extends javax.swing.JFrame {
             }
         });
     }
-
+    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem AutogenerateHierarchy;

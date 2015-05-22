@@ -250,7 +250,7 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
 
             //write parents - childen to file
             for(int curLevel = height - 2; curLevel >= 0; curLevel--){
-                //System.out.println("i = " + curLevel + "\t children = " + this.allParents.get(curLevel).toString() );
+                System.out.println("i = " + curLevel + "\t children = " + this.allParents.get(curLevel).toString() );
                 for (Double curParent : this.allParents.get(curLevel)){
                     if(this.getChildren(curParent) == null){
                         continue;
@@ -259,6 +259,7 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
                         continue;
                     StringBuilder sb = new StringBuilder();
                     for (Double child : this.getChildren(curParent)){
+                        System.out.println("child = " + child);
                         sb.append(child);
                         sb.append(" ");
                     } 
@@ -284,9 +285,24 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
     @Override
     public void add(Double newObj, Double parent) {
         System.out.println("add () newItem: "  + newObj.toString() + " parentItem: " + parent.toString());
+       
+        
         if(parent != null){
             this.stats.put(newObj, new NodeStats(this.stats.get(parent).getLevel()+1));
+            
+            
+           /* System.out.println("before");
+            for (Map.Entry<Double, Double> entry : parents.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+            }*/
+            
             this.parents.put(newObj, parent);
+            
+            /*System.out.println("after");
+            for (Map.Entry<Double, Double> entry : parents.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+            }*/
+            
             
             //add siblings
 //            List<Double> cList = this.children.get(parent);
@@ -298,6 +314,12 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
 //                this.siblings.get(sib).add(newObj);
 //            }
             
+            
+            /*System.out.println("before");
+            for (Map.Entry<Double, List<Double>> entry : children.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+            }*/
+            
             this.children.put(newObj, new ArrayList<Double>());
             if(this.children.get(parent) != null){
                 this.children.get(parent).add(newObj);
@@ -306,42 +328,46 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
                 c.add(newObj);
                 this.children.put(parent, c);
             }
+            
+            /*System.out.println("after");
+            for (Map.Entry<Double, List<Double>> entry : children.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+            }*/
+            
+            
             //System.out.println(height + " " + this.levels.get(parent));
             
-            ArrayList<Double> parentsInLevel = this.allParents.get(this.stats.get(parent).getLevel());
+            
             //parent is a leaf node
-            System.out.println(parentsInLevel);
-            if(isLeafLevel(parentsInLevel)){
+            
+           
+            if (this.stats.get(parent).getLevel() == allParents.size() - 1){
                 ArrayList<Double> p = new ArrayList<>();
-                p.add(parent);
-                this.allParents.put(this.stats.get(parent).getLevel(), p);
+                p.add(newObj);
+                this.allParents.put(this.stats.get(parent).getLevel() + 1, p);
                 this.height++;
-                //System.out.println("put parent " + parent.toString() + " to level " + this.stats.get(parent).getLevel() + " " + allParents);
-            }else{
-                if(!parentsInLevel.contains(parent)){
-                    //System.out.println("parent PUT TO ORDER");
-                    parentsInLevel.add(parent);
-                }
+                
+            }    
+            else{
+                ArrayList<Double> childList = allParents.get(this.stats.get(parent).getLevel() + 1);
+                childList.add(newObj);
+                allParents.put(this.stats.get(parent).getLevel() + 1, childList);
+                
             }
+            
+            /*System.out.println("after");
+            for (Map.Entry<Integer, ArrayList<Double>> entry : allParents.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+            }*/
             
         }
         else{
             System.out.println("Error: parent is null!");
         }
+        
+        
     }
 
-    private boolean isLeafLevel(ArrayList<Double> parentsInLevel){
-        boolean  leafLevel = true;
-        
-        for (Double parent : parentsInLevel){
-            List<Double> ch = this.children.get(parent);
-            if(ch != null && ch.size() > 0){
-                leafLevel = false;
-                break;
-            }
-        }
-        return leafLevel;
-    }
 
     @Override
     public Map<Integer, Set<Double>> remove(Double item)
@@ -411,13 +437,137 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
     @Override
     public void edit(Double oldValue, Double newValue){
         //update children map 
-        List<Double> childrenList = this.children.get(oldValue);
-        if(childrenList != null){
-            this.children.put(newValue, childrenList);
-        }
-        this.children.remove(oldValue); 
+        Double parent = null;
+        ArrayList parentsList = null;
+        List<Double> childrenListNew = null;
         
-        if(this.getParent(oldValue) != null){
+        /*System.out.println(this.stats.get(oldValue).getLevel());
+        System.out.println("before");
+            for (Map.Entry<Double, List<Double>> entry : this.children.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+        }*/
+        
+        List<Double> childrenList = this.children.get(oldValue);
+        if(childrenList != null){//node
+            if ( allParents.get(0).get(0).equals(oldValue)){
+                System.out.println("root");
+                
+                //children
+                this.children.put(newValue, childrenList);
+                this.children.remove(oldValue);
+                
+                //parents
+                for ( int i = 0; i < childrenList.size() ; i ++ ){
+                    this.parents.remove(childrenList.get(i));
+                    this.parents.put(childrenList.get(i), newValue);
+                }
+                
+                //allParents
+                 parentsList = allParents.get(0);
+                 parentsList.remove(0);
+                 parentsList.add(newValue);
+                 allParents.put(0,parentsList);
+            }
+            else{
+                System.out.println("node");
+                
+                //children structure
+                //its children
+                this.children.put(newValue, childrenList);
+                this.children.remove(oldValue); 
+                
+                //his father children
+                parent = this.parents.get(oldValue);
+                childrenListNew = this.children.get(parent);
+                for ( int i = 0 ; i < childrenListNew.size() ; i ++ ){
+                    if ( childrenListNew.get(i).equals(oldValue)){
+                        childrenListNew.remove(i);
+                        childrenListNew.add(newValue);
+                        this.children.put(parent, childrenListNew);
+                        break;
+                    }
+                }
+                
+                //parent structure
+                //its parent   
+                this.parents.put(newValue, parent);
+                this.parents.remove(oldValue);
+                
+                //its children's father 
+                for ( int i = 0; i < childrenList.size() ; i ++ ){
+                    this.parents.remove(childrenList.get(i));
+                    this.parents.put(childrenList.get(i), newValue);
+                }
+
+                //allParents
+                parentsList = allParents.get(this.stats.get(oldValue).getLevel());
+                for ( int i = 0 ; i < parentsList.size() ; i ++ ) {
+                    if (parentsList.get(i).equals(oldValue)){
+                        parentsList.remove(i);
+                        parentsList.add(newValue);
+                        allParents.put(this.stats.get(oldValue).getLevel(), parentsList);
+                        break;
+                    }
+                }
+
+            }
+            
+        }
+        else{//leaf
+            
+            //children
+            parent = this.getParent(oldValue);
+            childrenListNew = this.children.get(parent);
+            for ( int i = 0 ; i < childrenListNew.size() ; i++ ){
+                if ( childrenListNew.get(i).equals(oldValue)){  
+                    childrenListNew.remove(i);
+                    childrenListNew.add(newValue);
+                    this.children.put(parent, childrenListNew);
+                    break;
+                }
+            }
+            
+            //parents
+            this.parents.put(newValue,parent);
+            this.parents.remove(oldValue);
+            
+            
+            //allParents
+            parentsList = allParents.get(allParents.size()-1);
+            for( int i = 0 ; i < parentsList.size() ; i ++ ){
+                if (parentsList.get(i).equals(oldValue)){
+                    parentsList.remove(i);
+                    parentsList.add(newValue);
+                    allParents.put(allParents.size()-1, parentsList);
+                    break;
+                }
+            }
+            
+        }
+        
+        this.stats.put(newValue, this.stats.get(oldValue));
+        this.stats.remove(oldValue);
+        
+        /*System.out.println("after");
+            for (Map.Entry<Double, List<Double>> entry : this.children.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+            
+        System.out.println("after");
+            for (Map.Entry<Double, Double> entry : this.parents.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+        System.out.println("after");
+            for (Map.Entry<Integer, ArrayList<Double>> entry : this.allParents.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+        System.out.println("after");
+            for (Map.Entry<Double, NodeStats> entry : this.stats.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }*/
+            
+        /*
+        if(parent != null){
             int index = this.children.get(this.getParent(oldValue)).indexOf(oldValue);
             this.children.get(this.getParent(oldValue)).set(index, newValue);
             
@@ -465,6 +615,8 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
         //update levels
         this.stats.put(newValue, this.stats.get(oldValue));
         this.stats.remove(oldValue);
+        */        
+                
     }
 
 
@@ -489,6 +641,25 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
         NodeStats nodeStat = null;
         
         
+        
+        System.out.println("Drag and Dropppppppp");
+        
+        System.out.println("before");
+        for (Map.Entry<Double, NodeStats> entry : this.stats.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue().level +":"+entry.getValue().weight);
+        }   
+        
+        /*System.out.println("before");
+            for (Map.Entry<Double, List<Double>> entry : this.children.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+                List <Double> d = entry.getValue();
+                for( int i = 0 ; i < d.size() ; i ++  ){
+                    System.out.println(d.get(i) + "level:" + this.getLevel(d.get(i)) );
+                }
+        }*/
+            
+        System.out.println("old height = " + this.height);
+        
         Map<Integer,Set<Double>> m = this.BFS(firstObj,lastObj);
         
         if ( m != null ){
@@ -497,8 +668,7 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
             parentFirstObj = this.getParent(firstObj);
             childs1 = (ArrayList) this.getChildren(parentFirstObj);
             for( int i = 0 ; i < childs1.size() ; i ++ ){
-             
-       if ( childs1.get(i).equals(firstObj)){
+                if ( childs1.get(i).equals(firstObj)){
                     childs1.remove(i);
                     break;
                 }
@@ -539,7 +709,7 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
             else{
                 childs1 = new ArrayList<Double>();
                 childs1.add(firstObj);
-                this.children.put(firstObj, childs1);
+                this.children.put(lastObj, childs1);
             }
 
 
@@ -547,9 +717,10 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
             for ( int i = 1 ; i <= m.size() ; i ++ ){
                 s = m.get(i);
                 for( Double node : s ){
+                    System.out.println("node = " + node );
                     levelObj = this.getLevel(node);
                     parents = this.allParents.get(levelObj);
-                    System.out.println(levelObj + " kai " + parents);
+                    System.out.println("level = " + levelObj);
                     for( int j = 0 ; j < parents.size() ; j++ ){
                         if ( parents.get(j).equals(node)){
                             parents.remove(j);
@@ -558,15 +729,15 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
                 }
             }
             
-
             //topothetw ton prwto komvo kai to dentro tou sto allparents
             levelLastObj = this.getLevel(lastObj);
-            simb2 = this.allParents.get(levelLastObj);
-            simb2.add(lastObj);
+            
+            //simb2 = this.allParents.get(levelLastObj);
+            //simb2.add(lastObj);
             newLevel = levelLastObj;
             for ( int i = 1 ; i <= m.size() ; i ++ ){
                 s = m.get(i);
-                 newLevel = newLevel + 1;
+                newLevel = newLevel + 1;
                 if ( newLevel > this.allParents.size() - 1){// giati to allParents arxizei apo to miden
                     parents = new ArrayList<Double>();
                     parents.addAll(s);
@@ -579,6 +750,7 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
                     parents = null;
                 }  
             }
+            
 
 
             //allazw ta level tou dentrou tou prwtou komvou
@@ -597,7 +769,26 @@ public class HierarchyImplDouble implements Hierarchy<Double> {
                 }
             }
             
+            //height
+            this.height = allParents.size();
+            System.out.println("new height = " + this.height);
+            
         }
+        
+        System.out.println("after");
+        for (Map.Entry<Double, NodeStats> entry : this.stats.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue().level +":"+entry.getValue().weight);
+        }  
+        
+        
+        /*System.out.println("after");
+        for (Map.Entry<Double, List<Double>> entry : this.children.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue().toString());
+            List <Double> d = entry.getValue();
+                for( int i = 0 ; i < d.size() ; i ++  ){
+                    System.out.println(d.get(i) + "level:" + this.getLevel(d.get(i)) );
+                }
+        }*/
         
         return m;
     }

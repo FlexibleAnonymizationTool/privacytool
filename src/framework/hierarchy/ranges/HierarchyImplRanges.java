@@ -239,8 +239,10 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
             tempArr1 = new ArrayList<>();
             for (Range x : tempArr2) {
                 tempChild = children.get(x);
-                for ( i = 0 ; i < tempChild.size() ; i ++ ){
-                    tempArr1.add(tempChild.get(i));
+                if ( tempChild != null){
+                    for ( i = 0 ; i < tempChild.size() ; i ++ ){
+                        tempArr1.add(tempChild.get(i));
+                    }
                 }
             }           
             allParents.put(level, tempArr1);
@@ -293,18 +295,42 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
 
     @Override
     public void add(Range newObj, Range parent) {
-        System.out.println("arguments: "  + newObj.toString() + " " + parent.toString());
+        System.out.println("add () newItem: "  + newObj.toString() + " parentItem: " + parent.toString());
+       
+        
         if(parent != null){
-            System.out.println(this.stats.get(parent).level+1);
             this.stats.put(newObj, new NodeStats(this.stats.get(parent).getLevel()+1));
+            
+            
+           /* System.out.println("before");
+            for (Map.Entry<Double, Double> entry : parents.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+            }*/
+            
             this.parents.put(newObj, parent);
             
-//            List<Range> cList = this.children.get(parent);
-//            List<Range> sibs = new ArrayList<>();
+            /*System.out.println("after");
+            for (Map.Entry<Double, Double> entry : parents.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+            }*/
+            
+            
+            //add siblings
+//            List<Double> cList = this.children.get(parent);
+//            List<Double> sibs = new ArrayList<>();
 //            if(cList != null)
 //                sibs.addAll(cList);
-//            
 //            this.siblings.put(newObj, sibs);
+//            for(Double sib : sibs){
+//                this.siblings.get(sib).add(newObj);
+//            }
+            
+            
+            /*System.out.println("before");
+            for (Map.Entry<Double, List<Double>> entry : children.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+            }*/
+            
             this.children.put(newObj, new ArrayList<Range>());
             if(this.children.get(parent) != null){
                 this.children.get(parent).add(newObj);
@@ -314,38 +340,40 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
                 this.children.put(parent, c);
             }
             
-            ArrayList<Range> parentsInLevel = this.allParents.get(this.stats.get(parent).getLevel());
+            /*System.out.println("after");
+            for (Map.Entry<Double, List<Double>> entry : children.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+            }*/
+            
+            
+            //System.out.println(height + " " + this.levels.get(parent));
+            
+            
             //parent is a leaf node
-            if(isLeafLevel(parentsInLevel)){
+            
+           
+            if (this.stats.get(parent).getLevel() == allParents.size() - 1){
                 ArrayList<Range> p = new ArrayList<>();
-                p.add(parent);
-                this.allParents.put(this.stats.get(parent).getLevel(), p);
+                p.add(newObj);
+                this.allParents.put(this.stats.get(parent).getLevel() + 1, p);
                 this.height++;
-                //System.out.println("put parent " + parent.toString() + " to level " + this.levels.get(parent));
-            }else{
-                if(!parentsInLevel.contains(parent)){
-                    parentsInLevel.add(parent);
-                }
-            }
-        }
-        //new root inserted
-        else{
-            stats.put(newObj, new NodeStats(0));
-            List<Range> childrenList = new ArrayList<>();
-            childrenList.add(this.root);
-            this.children.put(newObj, childrenList);
-            
-            this.root = (Range)newObj;
-            
-            //add new level
-            for(Integer i=this.height-2; i>=0; i--){
-                ArrayList<Range> parentsList = this.allParents.get(i);
-                this.allParents.put(i + 1, parentsList);
-            }
                 
-            ArrayList<Range> parentsList = new ArrayList<>();
-            parentsList.add(newObj);
-            this.allParents.put(0, parentsList);
+            }    
+            else{
+                ArrayList<Range> childList = allParents.get(this.stats.get(parent).getLevel() + 1);
+                childList.add(newObj);
+                allParents.put(this.stats.get(parent).getLevel() + 1, childList);
+                
+            }
+            
+            /*System.out.println("after");
+            for (Map.Entry<Integer, ArrayList<Double>> entry : allParents.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+            }*/
+            
+        }
+        else{
+            System.out.println("Error: parent is null!");
         }    
     }
     
@@ -365,18 +393,143 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
     @Override
     public void edit(Range oldValue, Range newValue){
         //update children map 
-        List<Range> childrenList = this.children.get(oldValue);
-        if(childrenList != null){
-            this.children.put(newValue, childrenList);
-        }
-        this.children.remove(oldValue); 
+        //update children map 
+        Range parent = null;
+        ArrayList parentsList = null;
+        List<Range> childrenListNew = null;
         
-        if(this.getParent(oldValue) != null){
+        System.out.println(this.stats.get(oldValue).getLevel());
+        System.out.println("before");
+            for (Map.Entry<Range, List<Range>> entry : this.children.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+        
+        List<Range> childrenList = this.children.get(oldValue);
+        if(childrenList != null){//node
+            if ( allParents.get(0).get(0).equals(oldValue)){
+                System.out.println("root");
+                
+                //children
+                this.children.put(newValue, childrenList);
+                this.children.remove(oldValue);
+                
+                //parents
+                for ( int i = 0; i < childrenList.size() ; i ++ ){
+                    this.parents.remove(childrenList.get(i));
+                    this.parents.put(childrenList.get(i), newValue);
+                }
+                
+                //allParents
+                 parentsList = allParents.get(0);
+                 parentsList.remove(0);
+                 parentsList.add(newValue);
+                 allParents.put(0,parentsList);
+            }
+            else{
+                System.out.println("node");
+                
+                //children structure
+                //its children
+                this.children.put(newValue, childrenList);
+                this.children.remove(oldValue); 
+                
+                //his father children
+                parent = this.parents.get(oldValue);
+                childrenListNew = this.children.get(parent);
+                for ( int i = 0 ; i < childrenListNew.size() ; i ++ ){
+                    if ( childrenListNew.get(i).equals(oldValue)){
+                        childrenListNew.remove(i);
+                        childrenListNew.add(newValue);
+                        this.children.put(parent, childrenListNew);
+                        break;
+                    }
+                }
+                
+                //parent structure
+                //its parent   
+                this.parents.put(newValue, parent);
+                this.parents.remove(oldValue);
+                
+                //its children's father 
+                for ( int i = 0; i < childrenList.size() ; i ++ ){
+                    this.parents.remove(childrenList.get(i));
+                    this.parents.put(childrenList.get(i), newValue);
+                }
+
+                //allParents
+                parentsList = allParents.get(this.stats.get(oldValue).getLevel());
+                for ( int i = 0 ; i < parentsList.size() ; i ++ ) {
+                    if (parentsList.get(i).equals(oldValue)){
+                        parentsList.remove(i);
+                        parentsList.add(newValue);
+                        allParents.put(this.stats.get(oldValue).getLevel(), parentsList);
+                        break;
+                    }
+                }
+
+            }
+            
+        }
+        else{//leaf
+            
+            //children
+            parent = this.getParent(oldValue);
+            childrenListNew = this.children.get(parent);
+            for ( int i = 0 ; i < childrenListNew.size() ; i++ ){
+                if ( childrenListNew.get(i).equals(oldValue)){  
+                    childrenListNew.remove(i);
+                    childrenListNew.add(newValue);
+                    this.children.put(parent, childrenListNew);
+                    break;
+                }
+            }
+            
+            //parents
+            this.parents.put(newValue,parent);
+            this.parents.remove(oldValue);
+            
+            
+            //allParents
+            parentsList = allParents.get(allParents.size()-1);
+            for( int i = 0 ; i < parentsList.size() ; i ++ ){
+                if (parentsList.get(i).equals(oldValue)){
+                    parentsList.remove(i);
+                    parentsList.add(newValue);
+                    allParents.put(allParents.size()-1, parentsList);
+                    break;
+                }
+            }
+            
+        }
+        
+        this.stats.put(newValue, this.stats.get(oldValue));
+        this.stats.remove(oldValue);
+        
+        System.out.println("after");
+            for (Map.Entry<Range, List<Range>> entry : this.children.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+            
+        System.out.println("after");
+            for (Map.Entry<Range, Range> entry : this.parents.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+        System.out.println("after");
+            for (Map.Entry<Integer, ArrayList<Range>> entry : this.allParents.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+        System.out.println("after");
+            for (Map.Entry<Range, NodeStats> entry : this.stats.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+            
+        /*
+        if(parent != null){
             int index = this.children.get(this.getParent(oldValue)).indexOf(oldValue);
             this.children.get(this.getParent(oldValue)).set(index, newValue);
             
             //update parents map 
-            Range parent = this.parents.get(oldValue);
+            Double parent = this.parents.get(oldValue);
 
             this.parents.remove(oldValue);
             this.parents.put(newValue, parent);
@@ -385,31 +538,41 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
         }
         
         if(childrenList != null){
-            for(Range child : childrenList){
+            for(Double child : childrenList){
                     this.parents.put(child, newValue);
             }
         }
         
 //        if(this.getSiblings(oldValue) != null){
-//            List<Range> mySiblings = this.siblings.get(oldValue);
+//            List<Double> mySiblings = this.siblings.get(oldValue);
 //            this.siblings.remove(oldValue);
 //            this.siblings.put(newValue, mySiblings);
-//            for (Range sib : mySiblings){
+//            for (Double sib : mySiblings){
+//                System.out.println("sibling : " + sib);
 //                int i = this.siblings.get(sib).indexOf(oldValue);
-//                this.siblings.get(sib).set(i, newValue);            
+//                System.out.println(i);
+//                if(i != -1){        //TODO: fix this! 
+//                    this.siblings.get(sib).set(i, newValue); 
+//                }
+//                           
 //            }
 //        }
         
         //update allParents
-        ArrayList<Range> parentsInLevel = this.allParents.get(this.stats.get(oldValue).getLevel());
+        ArrayList<Double> parentsInLevel = this.allParents.get(this.stats.get(oldValue).getLevel());
+        
         if(parentsInLevel != null){
             int i = parentsInLevel.indexOf(oldValue);
-            parentsInLevel.set(i, newValue);
+            if(i != -1){         //parent not found
+                System.out.println("to i : " + i + " oldvalue : " + oldValue.toString());
+                parentsInLevel.set(i, newValue);
+            }
         }
         
         //update levels
         this.stats.put(newValue, this.stats.get(oldValue));
         this.stats.remove(oldValue);
+        */        
     }
 
     @Override
@@ -476,10 +639,6 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
 
     @Override
     public Map<Integer,Set<Range>> dragAndDrop(Range firstObj, Range lastObj) {
-        System.out.println("PRINTAROUME");
-        firstObj.print();
-        lastObj.print();
-        
         Range parentFirstObj ;
         ArrayList childs1 = null;
         ArrayList childs2 = null;
@@ -493,6 +652,25 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
         Set<Range> s = null;
         NodeStats nodeStat = null;
         
+        
+        
+        System.out.println("Drag and Dropppppppp");
+        
+        System.out.println("before");
+        for (Map.Entry<Range, NodeStats> entry : this.stats.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue().level +":"+entry.getValue().weight);
+        }   
+        
+        /*System.out.println("before");
+            for (Map.Entry<Double, List<Double>> entry : this.children.entrySet()) {
+                System.out.println(entry.getKey()+" : "+entry.getValue());
+                List <Double> d = entry.getValue();
+                for( int i = 0 ; i < d.size() ; i ++  ){
+                    System.out.println(d.get(i) + "level:" + this.getLevel(d.get(i)) );
+                }
+        }*/
+            
+        System.out.println("old height = " + this.height);
         
         Map<Integer,Set<Range>> m = this.BFS(firstObj,lastObj);
         
@@ -521,16 +699,16 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
 //            childs1 = (ArrayList) this.getChildren(lastObj);
 //            simb1 = null;
 //            if (childs1 != null ){
-//                simb1 = new ArrayList<Range>();
+//                simb1 = new ArrayList<Double>();
 //                for ( int i = 0 ; i < childs1.size() ; i++ ){
 //                    simb1.add(childs1.get(i));
-//                    simb2 = (ArrayList)this.getSiblings((Range) childs1.get(i));
+//                    simb2 = (ArrayList)this.getSiblings((Double) childs1.get(i));
 //                    if ( simb2 != null){
 //                        simb2.add(firstObj);
 //                    }
 //                    else{
-//                        simb2 = new ArrayList<Range>();
-//                    }/
+//                        simb2 = new ArrayList<Double>();
+//                    }
 //                }
 //            }
 //            this.siblings.put(firstObj, simb1);
@@ -541,9 +719,9 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
                 this.getChildren(lastObj).add(firstObj);
             }
             else{
-                childs1 = new ArrayList<Range>();
+                childs1 = new ArrayList<Double>();
                 childs1.add(firstObj);
-                this.children.put(firstObj, childs1);
+                this.children.put(lastObj, childs1);
             }
 
 
@@ -551,31 +729,29 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
             for ( int i = 1 ; i <= m.size() ; i ++ ){
                 s = m.get(i);
                 for( Range node : s ){
+                    System.out.println("node = " + node );
                     levelObj = this.getLevel(node);
                     parents = this.allParents.get(levelObj);
-                    
-                    if(parents != null){
-                    
-                        for( int j = 0 ; j < parents.size() ; j++ ){
-                            if ( parents.get(j).equals(node)){
-                                parents.remove(j);
-                            }
+                    System.out.println("level = " + levelObj);
+                    for( int j = 0 ; j < parents.size() ; j++ ){
+                        if ( parents.get(j).equals(node)){
+                            parents.remove(j);
                         }
                     }
                 }
             }
             
-
             //topothetw ton prwto komvo kai to dentro tou sto allparents
             levelLastObj = this.getLevel(lastObj);
-            simb2 = this.allParents.get(levelLastObj);
-            simb2.add(lastObj);
+            
+            //simb2 = this.allParents.get(levelLastObj);
+            //simb2.add(lastObj);
             newLevel = levelLastObj;
             for ( int i = 1 ; i <= m.size() ; i ++ ){
                 s = m.get(i);
-                 newLevel = newLevel + 1;
+                newLevel = newLevel + 1;
                 if ( newLevel > this.allParents.size() - 1){// giati to allParents arxizei apo to miden
-                    parents = new ArrayList<Range>();
+                    parents = new ArrayList<Double>();
                     parents.addAll(s);
                     this.allParents.put(newLevel,parents);
                     parents = null;
@@ -586,6 +762,7 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
                     parents = null;
                 }  
             }
+            
 
 
             //allazw ta level tou dentrou tou prwtou komvou
@@ -602,8 +779,28 @@ public class HierarchyImplRanges implements Hierarchy<Range>{
                     nodeStat = this.stats.get(d);
                     nodeStat.level = newLevel;
                 }
-            } 
+            }
+            
+            //height
+            this.height = allParents.size();
+            System.out.println("new height = " + this.height);
+            
         }
+        
+        System.out.println("after");
+        for (Map.Entry<Range, NodeStats> entry : this.stats.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue().level +":"+entry.getValue().weight);
+        }  
+        
+        
+        /*System.out.println("after");
+        for (Map.Entry<Double, List<Double>> entry : this.children.entrySet()) {
+            System.out.println(entry.getKey()+" : "+entry.getValue().toString());
+            List <Double> d = entry.getValue();
+                for( int i = 0 ; i < d.size() ; i ++  ){
+                    System.out.println(d.get(i) + "level:" + this.getLevel(d.get(i)) );
+                }
+        }*/
         
         return m;
     }

@@ -217,25 +217,6 @@ public class HierarchyAutogeneratePanel extends JPanel implements ActionListener
         add(plusMinusFanoutText, gbc);
         fieldMap.put(fieldTitle, plusMinusFanoutText);
         
-        
-        /*
-        //fanout group Radio Buttons
-        fieldTitle = DistinctField.values()[position++];
-        gbc = createGbc(1, ++row);
-        JRadioButton exactBtn = new JRadioButton("exact");
-        JRadioButton maxBtn = new JRadioButton("max");
-        ButtonGroup group = new ButtonGroup();
-        group.add(exactBtn);
-        group.add(maxBtn);
-        exactBtn.setSelected(true);
-        add(exactBtn, gbc);
-        fieldMap.put(fieldTitle, exactBtn);
-        gbc = createGbc(1, ++row);
-        fieldTitle = DistinctField.values()[position++];
-        add(maxBtn, gbc);
-        fieldMap.put(fieldTitle, maxBtn);
-                */
-        
     }
     
     private void initPanelRange(){
@@ -253,20 +234,7 @@ public class HierarchyAutogeneratePanel extends JPanel implements ActionListener
         add(nameText, gbc);
         fieldMap.put(fieldTitle, nameText);
         row++; 
-        
-        //initialize type of Nodes
-//        fieldTitle = RangeField.values()[position++];
-//        gbc = createGbc(0, row);
-//        label = new JLabel(fieldTitle.getTitle()+ ":", JLabel.LEFT);
-//        labels.add(label);
-//        add(label, gbc);
-//        gbc = createGbc(1, row);
-//        String[] nodesType = { "int", "double" };
-//        nodesTypeCombo = new JComboBox(nodesType);
-//        add(nodesTypeCombo, gbc); 
-//        fieldMap.put(fieldTitle, nodesTypeCombo);
-//        row++;
-        
+                
         //initialize nodes type combobox
         fieldTitle = RangeField.values()[position++];
         gbc = createGbc(0, row);
@@ -288,13 +256,6 @@ public class HierarchyAutogeneratePanel extends JPanel implements ActionListener
                             attributesCombo.addItem(column);
                         }
                     }
-                    
-                    //change items in sorting types combobox
-//                    String[] sortingTypes = getSortingTypes((String)nodesTypeCombo.getSelectedItem());
-//                    sortingTypesCombo.removeAllItems();
-//                    for (String sortingType : sortingTypes) {
-//                        sortingTypesCombo.addItem(sortingType);
-//                    }
                 }            
             }
         });
@@ -332,12 +293,15 @@ public class HierarchyAutogeneratePanel extends JPanel implements ActionListener
         add(label, gbc);
         gbc = createGbc(1, row);
         final JTextField startEndText = new JTextField();
-        if(dataset == null){
+        String selectedColumn = (String)attributesCombo.getSelectedItem();
+        
+        //no dataset loaded or no attribute of this type found
+        if(dataset == null || selectedColumn == null){
             startEndText.setText("0-100");
         } 
         else{
-            startEndText.setText((String)attributesCombo.getSelectedItem());
-            String selectedColumn = (String)attributesCombo.getSelectedItem();
+//            startEndText.setText((String)attributesCombo.getSelectedItem());
+            
 
 //            System.out.println(selectedColumn);
             Pair p = findMin(selectedColumn);
@@ -399,24 +363,6 @@ public class HierarchyAutogeneratePanel extends JPanel implements ActionListener
         plusMinusFanoutText.setText("0");
         add(plusMinusFanoutText, gbc);
         fieldMap.put(fieldTitle, plusMinusFanoutText);
-        
-        /*
-        //fanout group Radio Buttons
-        fieldTitle = RangeField.values()[position++];
-        gbc = createGbc(1, ++row);
-        JRadioButton exactBtn = new JRadioButton("exact");
-        JRadioButton maxBtn = new JRadioButton("max");
-        ButtonGroup group = new ButtonGroup();
-        group.add(exactBtn);
-        group.add(maxBtn);
-        exactBtn.setSelected(true);
-        add(exactBtn, gbc);
-        fieldMap.put(fieldTitle, exactBtn);
-        gbc = createGbc(1, ++row);
-        fieldTitle = RangeField.values()[position++];
-        add(maxBtn, gbc);
-        fieldMap.put(fieldTitle, maxBtn);
-                */
     }
     
     private void initHierarchyTypeCombo(){

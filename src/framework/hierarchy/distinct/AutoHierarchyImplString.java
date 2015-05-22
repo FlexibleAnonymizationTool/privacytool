@@ -23,11 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.TreeSet;
 import privacytool.framework.data.Data;
+import privacytool.framework.data.SETData;
 import privacytool.framework.dictionary.Dictionary;
 import privacytool.framework.hierarchy.NodeStats;
 
@@ -63,15 +62,23 @@ public class AutoHierarchyImplString extends HierarchyImplString {
         int column = dataset.getColumnByName(attribute);
         double[][] data = dataset.getData();
         Dictionary dict = dataset.getDictionary(column);
-        
+
         Set<String> itemsSet = new HashSet<>();
-        long start = System.currentTimeMillis();
-        long start1 = System.currentTimeMillis();                
-        for (double[] columnData : data){
-            //System.out.println(columnData[column]);
-            itemsSet.add(dict.getIdToString((int)columnData[column]));
+
+        //get distinct values from dataset
+        if(dataset instanceof SETData){
+            for (double[] rowData : data){
+                for(double d : rowData){
+                    itemsSet.add(dict.getIdToString((int)d));
+                }
+            }
         }
-       
+        else{
+            for (double[] rowData : data){
+                itemsSet.add(dict.getIdToString((int)rowData[column]));
+            }
+        }
+             
         height = computeHeight(fanout, itemsSet.size());
         int curHeight = height - 1;
         System.out.println("size: " + itemsSet.size() + " fanout: " + fanout + " height: " + height);
@@ -87,24 +94,17 @@ public class AutoHierarchyImplString extends HierarchyImplString {
             Collections.sort(initList);
         }
 
-        long end1 = System.currentTimeMillis(); 
-        System.out.println("Time to put to init list " + (end1 - start1));
-//        System.out.println("put to " + curHeight + " " + initList.size());
         allParents.put(curHeight, initList);
  
         //build inner nodes of hierarchy
         while(curHeight > 0){
-//            ArrayList<Double> prevLevel = allParents.get(curHeight);
             String[] prevLevel = allParents.get(curHeight).toArray(new String[allParents.get(curHeight).size()]);
             int prevLevelIndex = 0;
-//            ArrayList<Double> curLevel = new ArrayList<>(); // resize to new size //arrays instead of array lists
             
             int curLevelSize = (int)(prevLevel.length / fanout + 1);
             if(fanout > 0){
                 curLevelSize = prevLevel.length;
             }
-            
-//            System.out.println(prevLevel.length / fanout + "In level " + curHeight + " curLevelSize " + curLevelSize);
             
             String[] curLevel = new String[curLevelSize];
             int curLevelIndex = 0;
@@ -113,17 +113,14 @@ public class AutoHierarchyImplString extends HierarchyImplString {
                 
                 String ran = randomNumber();
                 int curFanout = calculateRandomFanout();
-//                List<Double> tempList = new ArrayList<>(); //oxi
+                
                 String[] tempArray = new String[curFanout];
-                //templist new array(currFanout)
                 
                 //assign a parent every #curFanout children
                 int j;
                 for(j=0; j<curFanout && (prevLevelIndex < prevLevel.length); j++){
                     String ch = prevLevel[prevLevelIndex];
-//                    System.out.println(prevLevelIndex);
                     prevLevelIndex++;
-//                    tempList.add(ch);
                     tempArray[j] = ch;
                     parents.put(ch, ran);
                     stats.put(ch, new NodeStats(curHeight));
@@ -133,10 +130,8 @@ public class AutoHierarchyImplString extends HierarchyImplString {
                 if(j != curFanout){
                     tempArray = Arrays.copyOf(tempArray, j);
                 }
-//                System.out.println(ran + " -> " + tempList);
+
                 children.put(ran, new ArrayList<>(Arrays.asList(tempArray)));
-//                assignSiblings(Arrays.asList(tempArray));
-//                curLevel.add(ran);
                 curLevel[curLevelIndex] = ran;
                 curLevelIndex++;
             }
@@ -145,25 +140,14 @@ public class AutoHierarchyImplString extends HierarchyImplString {
 
             //resize if there are less items in level than initial level max prediction
             if(curLevelIndex != curLevelSize){
-//                System.out.println("level : " + curHeight + "index : " + curLevelIndex + " size " + curLevelSize);
                 curLevel = Arrays.copyOf(curLevel, curLevelIndex);
             }
 
             allParents.put(curHeight, new ArrayList<>(Arrays.asList(curLevel)));
         }
 
-//        System.out.println("put to " + curHeight);
         root = allParents.get(0).get(0);
         stats.put(root, new NodeStats(0));
-        
-        long end = System.currentTimeMillis();
-        System.out.println("Time: " + (end - start));
-        
-//        System.out.println("--------" + allParents.keySet().size() + " --------------------------------------------");
-//        for(Integer i : allParents.keySet()){
-//            System.out.println(i + " " + allParents.get(i));
-//        }
-//        System.out.println("----------------------------------------------------");
     }
     
     
@@ -179,16 +163,7 @@ public class AutoHierarchyImplString extends HierarchyImplString {
         return "Random" + randomNumber++;
     }
     
-//    private void assignSiblings(List<String> list){
-//        for (String l : list){
-//            List<String> sibs = new ArrayList<>(list);
-//            sibs.remove(l);
-//            siblings.put(l, sibs);
-//        }
-//    }
-    
     private int calculateRandomFanout(){
-        //return (gen.nextInt(fanout + plusMinusFanout) + fanout - plusMinusFanout);
         int Max = fanout + plusMinusFanout;
         int Min = fanout - plusMinusFanout;
         

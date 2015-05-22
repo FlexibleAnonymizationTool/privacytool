@@ -1,22 +1,22 @@
-/* 
- * Copyright (C) 2015 "IMIS-Athena R.C.",
- * Institute for the Management of Information Systems, part of the "Athena" 
- * Research and Innovation Centre in Information, Communication and Knowledge Technologies.
- * [http://www.imis.athena-innovation.gr/]
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*
+* Copyright (C) 2015 "IMIS-Athena R.C.",
+* Institute for the Management of Information Systems, part of the "Athena"
+* Research and Innovation Centre in Information, Communication and Knowledge Technologies.
+* [http://www.imis.athena-innovation.gr/]
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package privacytool.gui.resultsTab;
 
 import java.io.FileNotFoundException;
@@ -24,26 +24,25 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import privacytool.framework.algorithms.flash.LatticeNode;
-import privacytool.framework.algorithms.incognito.GeneralizationNodeElement;
 import privacytool.framework.anonymizationrules.AnonymizationRules;
 import privacytool.framework.data.Data;
+import privacytool.framework.data.RDFData;
 import privacytool.framework.dictionary.Dictionary;
 import privacytool.framework.hierarchy.Hierarchy;
 import privacytool.gui.ErrorWindow;
 
 /**
- *
+ * A panel to visualize initial and anonymized datasets
  * @author serafeim
  */
 public class AnonymizedDatasetPanel extends javax.swing.JPanel {
-
+    
     /**
      * Creates new form InputData
      */
@@ -60,6 +59,9 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
         adjustScrolling();
     }
     
+    /**
+     * renders initial dataset
+     */
     public void renderInitialTable(){
         double [][]dataSet = this.dataset.getData();
         Map <Integer,String>colNamesType = null;
@@ -67,7 +69,7 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
         Map <Integer,Dictionary> dictionary = null;
         
         DefaultTableModel tableModel = new javax.swing.table.DefaultTableModel(){
-
+            
             @Override
             public boolean isCellEditable(int row, int column) {
                 //all cells false
@@ -81,20 +83,20 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
         colNamesType = dataset.getColumnsTypes();
         colNamesPosition = dataset.getColumnsPosition();
         dictionary = dataset.getDictionary();
- 
         
+        //add column headers
         tableModel.addColumn("line#");
         for(Integer key: colNamesType.keySet()){
             tableModel.addColumn(colNamesPosition.get(key));
         }
         
-                
+        
         Integer line = 0;
         //create rows of table
         int i = 0;
         int j = 0;
         for (i = 0 ; i < dataSet.length ; i++){
-            Object []row = new Object[colNamesType.size()+1]; 
+            Object []row = new Object[colNamesType.size()+1];
             row[0] = line++;
             for ( j = 0 ;  j < dataSet[i].length ; j ++ ){
                 if(colNamesType.get(j).contains("int")){
@@ -106,15 +108,18 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
                 else{
                     row[j+1] = dictionary.get(j).getIdToString((int)dataSet[i][j]);
                 }
-
+                
             }
             tableModel.addRow(row);
             row = null;
-        } 
+        }
         
         jScrollPane1.setVisible(true);
     }
-
+    
+    /**
+     * renders anonymized dataset
+     */
     public void renderAnonymizedTable(){
         System.out.println("Solution Selected : " + this.solutionNode);
         
@@ -126,7 +131,7 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
         Object[] columnData = null;
         
         DefaultTableModel tableModel = new javax.swing.table.DefaultTableModel(){
-
+            
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -139,18 +144,16 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
         colNamesType = dataset.getColumnsTypes();
         colNamesPosition = dataset.getColumnsPosition();
         dictionaries = dataset.getDictionary();
- 
+        
         //compute data of first column with line numbers
         columnName = "line#";
-//        System.out.println(dataSet.length);
         columnData = new Object[dataSet.length];
         for(int i=0; i<dataSet.length; i++){
             columnData[i] = i;
         }
         tableModel.addColumn(columnName, columnData);
         
-//        Iterator<GeneralizationNodeElement> it = Arrays.asList(solutionNode.getNodeElements()).iterator();
-        int[] transformation = this.solutionNode.getTransformation();        
+        int[] transformation = this.solutionNode.getTransformation();
         int count = 0;
         
         //compute data of columns
@@ -176,9 +179,9 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
                         columnData[line] = anonymizeValue(columnData[line], hierarchy, level);
                     }
                     
-                    if(anonymizeColumn && hierarchy.getHierarchyType().equals("distinct")){
+                    if(columnData[line] instanceof Double){
                         columnData[line] = ((Double)columnData[line]).intValue();
-                    }             
+                    }
                 }
             }
             else if(colNamesType.get(column).contains("double")){
@@ -201,43 +204,27 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
             
             tableModel.addColumn(columnName, columnData);
         }
-
+        
         this.anonymizedTableRendered = true;
         jScrollPane2.setVisible(true);
     }
-        
+    
+    /**
+     * export anonymized dataset to file
+     * @param file the filename
+     */
     public void exportAnonymizedDataset(String file){
-        
-        try {
-            try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
-                TableModel model =  anonymizedTable.getModel();
-                int columnCount = model.getColumnCount();
-                
-                //write column names
-                for(int column = 1; column < columnCount; column++){
-                    writer.print(model.getColumnName(column));
-                    if(column != columnCount-1){
-                        writer.print(",");
-                    }
-                }
-                writer.println();
-                
-                //write table data
-                for (int row = 0; row < model.getRowCount(); row++){
-                    for(int column = 1; column < columnCount; column++){
-                        writer.print(model.getValueAt(row, column));
-                        if(column != columnCount-1){
-                            writer.print(",");
-                        }
-                    }
-                    writer.println();
-                }
-            }
-        } catch (FileNotFoundException | UnsupportedEncodingException ex) {
-            Logger.getLogger(AnonymizedDatasetPanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.dataset.export(file, this.initialTable, this.anonymizedTable,
+                this.quasiIdentifiers.keySet());
     }
     
+    /**
+     * Anonymizes value based on an hierarchy to a specific level
+     * @param value the value to be anonymized
+     * @param h the hierarchy to be used 
+     * @param level the level of the hierarchy of the anonymized value
+     * @return the anonymized value
+     */
     private Object anonymizeValue(Object value, Hierarchy h, int level){
         Object anonymizedValue = value;
         
@@ -253,35 +240,20 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
         return anonymizedValue;
     }
     
+    /**
+     * export anonymization rules to file
+     * @param file the filename
+     */
     public void exportAnonymizationRules(String file){
-        AnonymizationRules rules = new AnonymizationRules();
+        AnonymizationRules.export(file, dataset, initialTable, anonymizedTable, 
+                this.quasiIdentifiers.keySet());
         
-        try {
-            try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
-                writer.println("Anonymization rules:");
-                for(Integer qid : this.quasiIdentifiers.keySet()){
-
-                    //create rules for the column
-                    int column = qid + 1;
-                    String columnName = initialTable.getColumnName(column);
-
-                    Map<String, String> map = rules.createRules(column, this.initialTable.getModel(), 
-                            this.anonymizedTable.getModel());
-
-                    //write rules to file
-                    writer.println(columnName);
-                    
-                    for (Map.Entry<String, String> entry : map.entrySet()){
-                        writer.print(entry.getKey() + "," + entry.getValue() + "\n");
-                    }
-                    writer.println();
-                }
-            }
-        } catch (FileNotFoundException | UnsupportedEncodingException ex) {
-            Logger.getLogger(AnonymizedDatasetPanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
     
+    /**
+     * anonymize dataset with imported rules
+     * @param rules the imported rules
+     */
     public void anonymizeWithImportedRules(Map<String, Map<String, String>> rules) {
         
         //set quasi-ids
@@ -295,7 +267,7 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
         TableModel model = this.initialTable.getModel();
         
         DefaultTableModel tableModel = new javax.swing.table.DefaultTableModel(){
-
+            
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -303,15 +275,15 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
         };
         
         //iterate columns
-        for(int column=0; column<model.getColumnCount(); column++){
-            String columnName = model.getColumnName(column);
+        for(int column=0; column<model.getColumnCount()-1; column++){
+            String columnName = this.dataset.getColumnByPosition(column);
             String[] columnData = new String[model.getRowCount()];
             
             //if rules are provided for that column
             if(rules.containsKey(columnName)){
                 Map<String, String> rulesForColumn = rules.get(columnName);
                 for(int row=0; row<model.getRowCount(); row++){
-                    String initValue = this.initialTable.getValueAt(row, column).toString();
+                    String initValue = this.initialTable.getValueAt(row, column+1).toString();
                     String anonymizedValue = rulesForColumn.get(initValue);
                     if(anonymizedValue == null){
                         ErrorWindow.showErrorWindow(initValue + " value is not present in rules loaded");
@@ -342,6 +314,9 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
         this.solutionNode = selectedNode;
     }
     
+    /**
+     * adjust scrolling to both tables
+     */
     private void adjustScrolling(){
         this.initialTable.setSelectionModel(anonymizedTable.getSelectionModel());
         this.jScrollPane1.getVerticalScrollBar().setModel(this.jScrollPane2.getVerticalScrollBar().getModel());
@@ -359,7 +334,7 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
         }
         System.out.println(Arrays.toString(qids));
     }
-
+    
     public boolean isAnonymizedTableRendered() {
         return anonymizedTableRendered;
     }
@@ -414,7 +389,7 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
 
         getAccessibleContext().setAccessibleName("AnonymizedDataset");
     }// </editor-fold>//GEN-END:initComponents
-
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable anonymizedTable;
@@ -422,8 +397,8 @@ public class AnonymizedDatasetPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
-
-
-
-
+    
+    
+    
+    
 }

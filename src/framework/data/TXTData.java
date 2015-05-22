@@ -1,39 +1,50 @@
-/* 
- * Copyright (C) 2015 "IMIS-Athena R.C.",
- * Institute for the Management of Information Systems, part of the "Athena" 
- * Research and Innovation Centre in Information, Communication and Knowledge Technologies.
- * [http://www.imis.athena-innovation.gr/]
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*
+* Copyright (C) 2015 "IMIS-Athena R.C.",
+* Institute for the Management of Information Systems, part of the "Athena"
+* Research and Innovation Centre in Information, Communication and Knowledge Technologies.
+* [http://www.imis.athena-innovation.gr/]
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package privacytool.framework.data;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JTable;
+import javax.swing.table.TableModel;
 import privacytool.framework.dictionary.Dictionary;
+import privacytool.gui.resultsTab.AnonymizedDatasetPanel;
 
 /**
  * A class managing text data
  * @author serafeim
  */
 public class TXTData implements Data{
-    private double data[][] = null;   
+    private double data[][] = null;
     private String inputFile = null;
     private int sizeOfRows = 0;
     private int sizeOfCol = 0;
@@ -57,7 +68,7 @@ public class TXTData implements Data{
         String []temp = null;
         String []colNames = null;
         boolean FLAG = true;
-
+        
         this.inputFile = inputFile;
         this.delimeter = del;
         
@@ -65,7 +76,7 @@ public class TXTData implements Data{
             fstream = new FileInputStream(inputFile);
             in = new DataInputStream(fstream);
             br = new BufferedReader(new InputStreamReader(in));
-        
+            
             while ((strLine = br.readLine()) != null)   {
                 
                 //save column names
@@ -115,13 +126,13 @@ public class TXTData implements Data{
         
         return data;
     }
-
+    
     
     @Override
-    public void setData() {
-        
+    public void setData(double[][] _data) {
+        this.data = _data;
     }
-
+    
     /**
      * Gets the length of the dataset array
      * @return length of the dataset
@@ -144,7 +155,7 @@ public class TXTData implements Data{
             System.out.println();
         }
     }
-
+    
     /**
      * Executes a preprocessing of the dataset
      */
@@ -162,9 +173,9 @@ public class TXTData implements Data{
             fstream = new FileInputStream(inputFile);
             in = new DataInputStream(fstream);
             br = new BufferedReader(new InputStreamReader(in));
-        
+            
             //counts lines of the dataset
-            while ((strLine = br.readLine()) != null)   {   
+            while ((strLine = br.readLine()) != null)   {
                 counter++;
             }
             
@@ -197,7 +208,7 @@ public class TXTData implements Data{
             fstream = new FileInputStream(inputFile);
             in = new DataInputStream(fstream);
             br = new BufferedReader(new InputStreamReader(in));
-        
+            
             while ((strLine = br.readLine()) != null){
                 
                 //do not read the fist line
@@ -206,7 +217,7 @@ public class TXTData implements Data{
                     FLAG = false;
                 }
                 else{
-
+                    
                     temp = strLine.split(delimeter);
                     for (int i = 0; i < temp.length ; i ++ ){
                         if ( colNamesType.get(i).contains("int") ){
@@ -219,7 +230,7 @@ public class TXTData implements Data{
                             Dictionary tempDict = dictionary.get(i);
                             
                             //if string is not present in the dictionary
-                            if (tempDict.containsStringToId(temp[i]) == false){
+                            if (tempDict.containsString(temp[i]) == false){
                                 tempDict.putIdToString(stringCount, temp[i]);
                                 tempDict.putStringToId(temp[i],stringCount);
                                 dictionary.put(i, tempDict);
@@ -236,15 +247,15 @@ public class TXTData implements Data{
                     counter++;
                 }
             }
-        
+            
             in.close();
             
         }catch (Exception e){//Catch exception if any
             System.err.println("Error: " + e.getMessage());
         }
     }
-
-
+    
+    
     /**
      * Reads dataset from file (preprocessing and load)
      */
@@ -253,7 +264,7 @@ public class TXTData implements Data{
         preprocessing();
         save();
     }
-
+    
     /**
      * Gets dictionary for the specified column
      * @param column the number of the column
@@ -272,7 +283,7 @@ public class TXTData implements Data{
     public Map<Integer, String> getColumnsTypes() {
         return colNamesType;
     }
-
+    
     /**
      * Gets column names
      * @return a map with the column names by position
@@ -281,7 +292,7 @@ public class TXTData implements Data{
     public Map<Integer, String> getColumnsPosition() {
         return colNamesPosition;
     }
-
+    
     /**
      * Gets all dictionaries
      * @return a map with with the column dictionaries by position
@@ -300,12 +311,12 @@ public class TXTData implements Data{
     public int getColumnByName(String column){
         for(Integer i : this.colNamesPosition.keySet()){
             if(this.colNamesPosition.get(i).equals(column)){
-                return i;        
+                return i;
             }
         }
         return -1;
     }
-
+    
     /**
      * Sets a new dictionary for a specific column
      * @param column the column number
@@ -315,7 +326,7 @@ public class TXTData implements Data{
     public void setDictionary(Integer column, Dictionary dict) {
         this.dictionary.put(column, dict);
     }
-
+    
     /**
      * Replaces the dictionary of a column with a new one. Updates values in this
      * column with those taken from the new dictionary
@@ -338,5 +349,43 @@ public class TXTData implements Data{
         
         //set given dictionary as the new one
         setDictionary(column, dict);
+    }
+    
+    @Override
+    public void export(String file, JTable initialTable, JTable anonymizedTable, Set<Integer> qids) {
+        try {
+            try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
+                TableModel model =  anonymizedTable.getModel();
+                int columnCount = model.getColumnCount();
+                
+                //write column names
+                for(int column = 1; column < columnCount; column++){
+                    writer.print(model.getColumnName(column));
+                    if(column != columnCount-1){
+                        writer.print(",");
+                    }
+                }
+                writer.println();
+                
+                //write table data
+                for (int row = 0; row < model.getRowCount(); row++){
+                    for(int column = 1; column < columnCount; column++){
+                        writer.print(model.getValueAt(row, column));
+                        if(column != columnCount-1){
+                            writer.print(",");
+                        }
+                    }
+                    writer.println();
+                }
+            }
+        } catch (FileNotFoundException | UnsupportedEncodingException ex) {
+            Logger.getLogger(AnonymizedDatasetPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+
+    @Override
+    public String getColumnByPosition(Integer columnIndex) {
+        return this.colNamesPosition.get(columnIndex);
     }
 }

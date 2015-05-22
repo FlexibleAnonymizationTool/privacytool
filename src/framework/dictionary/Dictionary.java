@@ -79,7 +79,7 @@ public class Dictionary {
      * @param key the string value
      * @return true if present, false otherwise
      */
-    public boolean containsStringToId(String key){
+    public boolean containsString(String key){
         return stringToId.containsKey(key);
     }
     
@@ -107,5 +107,13 @@ public class Dictionary {
      */
     public Set<String> getKeyset(){
         return this.stringToId.keySet();
+    }
+    
+    public void remove(int id){
+        String key = this.idToString.get(id);
+        if(key != null){
+            this.idToString.remove(id);
+            this.stringToId.remove(key);
+        }
     }
 }

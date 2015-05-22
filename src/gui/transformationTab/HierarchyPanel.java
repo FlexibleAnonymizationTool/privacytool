@@ -141,15 +141,15 @@ public class HierarchyPanel extends JPanel implements ActionListener {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(49, 49, 49)
+                .addContainerGap(74, Short.MAX_VALUE)
                 .addComponent(add)
-                .addGap(43, 43, 43)
+                .addGap(42, 42, 42)
                 .addComponent(edit)
-                .addGap(45, 45, 45)
+                .addGap(42, 42, 42)
                 .addComponent(remove)
-                .addGap(45, 45, 45)
+                .addGap(42, 42, 42)
                 .addComponent(clear)
-                .addContainerGap(93, Short.MAX_VALUE))
+                .addContainerGap(75, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -187,9 +187,7 @@ public class HierarchyPanel extends JPanel implements ActionListener {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
         );
 
         hierarchiesCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -244,11 +242,11 @@ public class HierarchyPanel extends JPanel implements ActionListener {
                     .addComponent(jLabel1)
                     .addComponent(attributesCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(reload))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(24, 24, 24))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -384,8 +382,7 @@ public class HierarchyPanel extends JPanel implements ActionListener {
 
     
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
-        System.out.println("current " + curPoint);
-        System.out.println("parent " + parentPoint);
+
         if(curPoint == null){
             ErrorWindow.showErrorWindow("Please select a node first");
             return;
@@ -448,6 +445,9 @@ public class HierarchyPanel extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(null, "Value already exists, please retype", "Warning", 1);
                 validInput = false;                
             }
+            
+            System.out.println("current " + newItem);
+            System.out.println("parent " + curPoint);
         }
         //String selectedItem = (String)jComboBox1.getSelectedItem();
         
@@ -579,8 +579,11 @@ public class HierarchyPanel extends JPanel implements ActionListener {
                     if(bfs != null){
                         DefaultTreeModel model = (DefaultTreeModel) jTree1.getModel();
                         Map<Object, DefaultMutableTreeNode> nodesMap = hierarchiesNodes.get(selectedItem);
+                                             
                         for (Integer i : bfs.keySet()){
+                            System.out.println("i = " + i);
                             for(Object node : bfs.get(i)){
+                                System.out.println("node = " + node);
                                 model.removeNodeFromParent(nodesMap.get(node));
                                 nodesMap.remove(node);
                             }

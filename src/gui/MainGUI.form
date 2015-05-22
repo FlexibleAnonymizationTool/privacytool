@@ -140,8 +140,8 @@
         <Container class="javax.swing.JPanel" name="TransforamtionTab">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Define Transformation">
-                <Property name="tabTitle" type="java.lang.String" value="Define Transformation"/>
+              <JTabbedPaneConstraints tabName="Transformation">
+                <Property name="tabTitle" type="java.lang.String" value="Transformation"/>
               </JTabbedPaneConstraints>
             </Constraint>
           </Constraints>

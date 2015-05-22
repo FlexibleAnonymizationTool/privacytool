@@ -19,7 +19,11 @@
  */
 package privacytool.framework.data;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
 import java.util.Map;
+import java.util.Set;
+import javax.swing.JTable;
 import privacytool.framework.dictionary.Dictionary;
 
 /**
@@ -28,12 +32,13 @@ import privacytool.framework.dictionary.Dictionary;
  */
 public interface Data {
     public double[][] getData();
-    public void setData();
+    public void setData(double[][] _data);
     public int getDataLenght();
     public void print();
     public void save();
     public void preprocessing();
-    public void readDataset();
+    public void readDataset();public void export(String file, JTable initialTable, 
+            JTable anonymizedTable, Set<Integer> qids);
     public Map <Integer,String> getColumnsTypes();
     public Map <Integer,String> getColumnsPosition();
     public Map <Integer,Dictionary> getDictionary();
@@ -41,5 +46,8 @@ public interface Data {
     public Dictionary getDictionary(Integer column);
     public void setDictionary(Integer column, Dictionary dict);
     public int getColumnByName(String column);
+    public String getColumnByPosition(Integer columnIndex);
     public void replaceColumnDictionary(Integer column, Dictionary dict);
+    
+    
 }
